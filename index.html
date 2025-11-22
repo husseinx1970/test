@@ -1,45 +1,42 @@
 <!doctype html>
-<html lang="ar">
+<html lang="en">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
-<title>HUD — Tesla-like Top-Down</title>
-<link rel="stylesheet" href="style.css"/>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
+  <title>Top-Down HUD — Side Object Detector (English)</title>
+  <link rel="stylesheet" href="style.css"/>
 </head>
 <body>
   <div class="app">
     <header>
-      <h1>HUD محاكاة شبيهة بتسلا (Top-Down)</h1>
-      <p>الهاتف = السيارة. الكاميرا تعمل بالخلفية فقط لتحليل الأجسام.</p>
+      <h1>Top-Down HUD — Side Object Detector</h1>
+      <p>The phone represents the car. Camera runs hidden for detection or use Test Mode to simulate with a reference image.</p>
     </header>
 
     <div class="controls">
-      <button id="btnStart">ابدأ</button>
-      <button id="btnStop">إيقاف</button>
-      <label><input id="testMode" type="checkbox"/> وضع اختبار (صورة ثابتة)</label>
+      <button id="btnStart">Start</button>
+      <button id="btnStop">Stop</button>
+      <label><input id="testMode" type="checkbox" /> Test mode (use reference image)</label>
     </div>
 
     <main id="viewport">
-      <!-- كاميرا مخفية للاستنتاج -->
+      <!-- hidden camera (used only for detection) -->
       <video id="video" autoplay playsinline muted style="display:none"></video>
 
-      <!-- الخلفية المرجعية (صورة من جلسة الشات) -->
-      <img id="refImage" src="/mnt/data/B3C0947E-8CE5-4391-B183-DE0B623D1584.jpeg" alt="ref" style="display:none"/>
+      <!-- reference image used only in Test Mode (provided from session) -->
+      <img id="refImage" src="/mnt/data/C11C7C56-B110-433A-ACEC-8C2DDC0B4561.jpeg" alt="reference" style="display:none"/>
 
-      <!-- لوح الرسم -->
+      <!-- drawing canvas -->
       <canvas id="hudCanvas"></canvas>
 
-      <!-- معلومات صغيرة -->
-      <div id="hudTop">
-        <div id="battery">⚡72%</div>
-        <div id="speed">0 km/h</div>
-      </div>
+      <!-- small status box -->
+      <div id="statusBox">Status: stopped</div>
     </main>
 
-    <footer>تحليل محلي على جهازك — لا يُرسل الفيديو لأي خادم.</footer>
+    <footer>All detection runs locally on your device (TensorFlow.js). No video leaves your phone.</footer>
   </div>
 
-  <!-- TFJS + COCO-SSD من CDN -->
+  <!-- TensorFlow.js + COCO-SSD -->
   <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.12.0/dist/tf.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd@2.2.2/dist/coco-ssd.min.js"></script>
   <script src="script.js"></script>
