@@ -1,44 +1,44 @@
 <!doctype html>
 <html lang="ar">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Simulated Tesla-like HUD — No Camera</title>
-<link rel="stylesheet" href="style.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+  <title>Tesla-like HUD — Live</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div id="app">
     <header>
-      <h1>HUD محاكاة 360° — بدون كاميرا</h1>
-      <p>الهاتف يمثل السيارة. سترى شارعًا أمامك وأجسامًا جانبية مع تسميات وتحذيرات—لا حاجة لكاميرا.</p>
+      <h1>عرض محاكاة مثل Tesla</h1>
+      <p>الهاتف = السيارة. سيتم استخدام الكاميرا في الخلفية لتحليل ما حولك، لكن لن يتم عرض الفيديو، فقط الرسم مثل تسلا.</p>
     </header>
 
     <div class="controls">
-      <button id="startSim">ابدأ المحاكاة</button>
-      <button id="pauseSim">إيقاف مؤقت</button>
-      <label>سرعة المحاكاة:
-        <input id="speedRange" type="range" min="0.2" max="3" step="0.1" value="1">
-      </label>
+      <button id="startBtn">ابدأ</button>
+      <button id="stopBtn">إيقاف</button>
     </div>
 
     <main id="viewport">
-      <!-- optional background reference image (your uploaded picture) -->
-      <img id="bgRef" src="/mnt/data/2C334301-B728-42DE-9B51-7E159317FF1E.jpeg" alt="background reference" />
-      <canvas id="hudCanvas"></canvas>
-      <div id="uiOverlay">
-        <div id="carIcon">🚗</div>
-        <div id="topInfo">
-          <div id="battery">⚡ 72%</div>
-          <div id="speed">0 km/h</div>
-        </div>
+      <!-- الكاميرا مخفية، لا تظهر للمستخدم -->
+      <video id="video" autoplay playsinline muted style="display:none"></video>
+
+      <!-- اللوحة التي سترسم فيها السيارة والسحب -->
+      <canvas id="hud"></canvas>
+
+      <div id="topInfo">
+        <div id="speed">0 km/h</div>
+        <div id="status">جاهز</div>
       </div>
     </main>
 
     <footer>
-      <small>نسخة محاكاة - واجهة 2.5D تشبه Tesla (بدون استخدام كاميرا)</small>
+      <small>يتم التحليل بالكامل على جهازك باستخدام TensorFlow.js (لا يتم إرسال الفيديو إلى أي خادم).</small>
     </footer>
   </div>
 
+  <!-- مكتبات الذكاء الاصطناعي -->
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.12.0/dist/tf.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd@2.2.2/dist/coco-ssd.min.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
