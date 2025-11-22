@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+<title>Mobile 360 HUD — Demo</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="app">
+    <header>
+      <h1>Mobile 360° HUD — Demo</h1>
+      <p>Allow camera access, then press <strong>Use Camera</strong>.</p>
+    </header>
+
+    <div class="controls">
+      <button id="useCamera">Use Camera</button>
+      <button id="useReference">Use Reference Image</button>
+      <label class="switch"><input id="flip" type="checkbox"><span>Flip Horizontal</span></label>
+    </div>
+
+    <div id="viewport">
+      <video id="video" autoplay playsinline muted></video>
+      <canvas id="overlay"></canvas>
+      <img id="reference" src="/mnt/data/1930CA2C-62A9-41A2-A746-D8D09CEF09C2.jpeg" style="display:none" />
+      <div id="hud">
+        <div id="car">🚗</div>
+      </div>
+    </div>
+
+    <footer>
+      <small>Demo uses TensorFlow.js coco-ssd.</small>
+    </footer>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.12.0/dist/tf.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd@2.2.2/dist/coco-ssd.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
