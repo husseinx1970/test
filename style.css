@@ -3,11 +3,10 @@ body{background:#07121a;color:#eaf4fb;min-height:100vh;display:flex;flex-directi
 header{padding:12px;text-align:center;background:linear-gradient(90deg,#071428,#0b2a3a)}
 header h1{font-size:18px;margin-bottom:6px}
 header p{font-size:13px;opacity:0.9}
-.controls{display:flex;gap:10px;align-items:center;padding:10px;justify-content:center;background:#06121a}
-.controls button{background:#0fa3ff;border:none;padding:8px 12px;border-radius:8px;color:#012;font-weight:700;cursor:pointer}
-.controls label{color:#cfe9ff;display:flex;align-items:center;gap:6px}
+.controls{display:flex;gap:8px;align-items:center;padding:10px;justify-content:center;background:#06121a}
+.controls button{background:#0fa3ff;border:none;padding:8px 12px;border-radius:8px;color:#012;cursor:pointer;font-weight:700}
 #viewport{position:relative;flex:1;display:flex;align-items:center;justify-content:center;padding:12px}
 #refImage{position:absolute;left:50%;top:6%;transform:translateX(-50%);max-width:86%;opacity:0.06;pointer-events:none;border-radius:8px}
 canvas#hudCanvas{width:100%;max-width:920px;height:calc(72vh);background:linear-gradient(#f3f6f9,#eef2f7);border-radius:12px;display:block}
-#statusBox{position:absolute;right:12px;top:12px;background:rgba(0,0,0,0.05);padding:6px 10px;border-radius:8px;font-weight:700}
+#status{position:absolute;right:12px;top:12px;background:rgba(0,0,0,0.05);padding:6px 10px;border-radius:8px;font-weight:700}
 footer{text-align:center;padding:8px;color:#9fb6c9;background:#031017}
