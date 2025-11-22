@@ -1,36 +1,37 @@
-// Tesla-like HUD using camera in background, showing only top-down visualization.
+// script.js — Top-down HUD that uses camera in background to detect objects,
+// then draws a Tesla-like top-down visualization (car center + side bubbles).
 
 const video = document.getElementById('video');
-const canvas = document.getElementById('hud');
+const canvas = document.getElementById('hudCanvas');
 const ctx = canvas.getContext('2d');
-const startBtn = document.getElementById('startBtn');
-const stopBtn = document.getElementById('stopBtn');
+const btnStart = document.getElementById('btnStart');
+const btnStop = document.getElementById('btnStop');
+const testModeCheckbox = document.getElementById('testMode');
+const refImage = document.getElementById('refImage');
 const speedEl = document.getElementById('speed');
-const statusEl = document.getElementById('status');
 
 let model = null;
 let stream = null;
 let running = false;
-let lastTime = performance.now();
 
-// ضبط حجم الـ canvas حسب الشاشة
-function resizeCanvas() {
-  const w = Math.min(window.innerWidth - 30, 900);
-  const h = Math.min(window.innerHeight * 0.7, 600);
-  canvas.width = w;
-  canvas.height = h;
+// canvas sizing
+function fit() {
+  const vw = Math.min(window.innerWidth - 40, 920);
+  const vh = Math.min(window.innerHeight * 0.72, 720);
+  canvas.width = Math.floor(vw);
+  canvas.height = Math.floor(vh);
 }
-resizeCanvas();
-window.addEventListener('resize', resizeCanvas);
+window.addEventListener('resize', fit);
+fit();
 
+// load TF model
 async function loadModel() {
-  statusEl.textContent = 'تحميل نموذج AI ...';
   model = await cocoSsd.load();
-  statusEl.textContent = 'النموذج جاهز';
+  console.log('Model ready');
 }
 loadModel();
 
-// تشغيل الكاميرا (لكن لن نعرض الفيديو)
+// start camera (hidden)
 async function startCamera() {
   if (stream) return;
   try {
@@ -39,164 +40,179 @@ async function startCamera() {
       audio: false
     });
     video.srcObject = stream;
-    await new Promise(res => video.onloadedmetadata = res);
+    await new Promise(r => video.onloadedmetadata = r);
   } catch (e) {
-    alert('لم أستطع فتح الكاميرا: ' + e.message);
+    alert('Camera error: ' + e.message);
   }
 }
-
 function stopCamera() {
-  if (stream) {
-    stream.getTracks().forEach(t => t.stop());
-    stream = null;
-  }
+  if (!stream) return;
+  stream.getTracks().forEach(t => t.stop());
+  stream = null;
 }
 
-function mapDetectionToPolar(det, vw, vh) {
-  // det: {bbox:[x,y,w,h], class, score}
+// convert detection bbox -> polar/top-down mapping
+function mapDetToTop(det, vw, vh) {
   const [x,y,w,h] = det.bbox;
   const cx = x + w/2;
   const cy = y + h/2;
-
-  // normalized
-  const nx = (cx / vw) * 2 - 1;      // -1..1 left/right
-  const ny = cy / vh;                // 0 (top) .. 1 (bottom)
-
-  // تقدير زاوية من -60 درجة إلى +60
-  const angle = nx * 60 * (Math.PI/180);
-  // تقدير مسافة من حجم الصندوق: كلما كان أكبر كان أقرب
-  const area = (w*h)/(vw*vh);
-  let r = 1 - Math.min(1, Math.sqrt(area)*2);   // 0 قريب، 1 بعيد
-  r = 0.2 + r*0.8;  // لا نجعله صفر تماما
-
-  return {angle, r};
+  // normalized -1..1 x axis (left..right)
+  const nx = (cx / vw) * 2 - 1;
+  // size -> approximate distance (bigger -> closer)
+  const area = (w*h) / (vw*vh);
+  let dist = 1 - Math.min(1, Math.sqrt(area) * 2.0); // 0 = very close, 1 = far
+  dist = Math.max(0.05, Math.min(1.0, dist));
+  // angle limited to +/-60 degrees
+  const angle = nx * 60 * (Math.PI/180); // radians
+  return { angle, r: dist };
 }
 
-function drawScene(detections) {
+// draw top-down scene very similar to Tesla illustration
+function drawTop(detsTop) {
   const W = canvas.width, H = canvas.height;
   ctx.clearRect(0,0,W,H);
 
-  // خلفية رمادية خفيفة
-  ctx.fillStyle = '#f3f5f9';
+  // light background
+  ctx.fillStyle = '#f3f6f9';
   ctx.fillRect(0,0,W,H);
 
   const cx = W/2;
-  const cy = H*0.7;
+  const cy = H*0.72;
 
-  // رسم "سحب" محيطة (خلفية، مثل Tesla)
-  ctx.fillStyle = 'rgba(200,205,215,0.9)';
+  // stylized road side blobs (soft)
+  ctx.fillStyle = 'rgba(220,220,225,0.9)';
   ctx.beginPath();
-  ctx.ellipse(cx - W*0.35, cy-40, W*0.25, H*0.35, 0, 0, Math.PI*2);
-  ctx.ellipse(cx + W*0.35, cy-40, W*0.25, H*0.35, 0, 0, Math.PI*2);
-  ctx.ellipse(cx,           cy-80, W*0.25, H*0.4,  0, 0, Math.PI*2);
+  ctx.ellipse(cx - W*0.35, cy - 40, W*0.24, H*0.34, 0, 0, Math.PI*2);
+  ctx.ellipse(cx + W*0.35, cy - 40, W*0.24, H*0.34, 0, 0, Math.PI*2);
+  ctx.ellipse(cx, cy - 80, W*0.22, H*0.38, 0, 0, Math.PI*2);
   ctx.fill();
 
-  // رسم السيارة من الأعلى
+  // car silhouette
   const carW = W*0.22;
-  const carH = H*0.25;
+  const carH = H*0.26;
   ctx.save();
-  ctx.translate(cx, cy-40);
-  ctx.shadowColor = 'rgba(0,0,0,0.25)';
-  ctx.shadowBlur = 20;
-  ctx.shadowOffsetY = 10;
-
-  // جسم السيارة
+  ctx.translate(cx, cy - 40);
+  ctx.shadowColor = 'rgba(0,0,0,0.2)';
+  ctx.shadowBlur = 18;
+  ctx.shadowOffsetY = 8;
+  // body
   ctx.fillStyle = '#ffffff';
   roundRect(ctx, -carW/2, -carH/2, carW, carH, 18, true, false);
-
-  // سقف أسود بانوراما
-  ctx.fillStyle = '#15191f';
-  roundRect(ctx, -carW*0.35, -carH*0.35, carW*0.7, carH*0.7, 10, true, false);
+  // roof
+  ctx.fillStyle = '#10141a';
+  roundRect(ctx, -carW*0.33, -carH*0.33, carW*0.66, carH*0.66, 10, true, false);
   ctx.restore();
 
-  // رسم الفقاعات للأجسام المكتشفة
-  detections.forEach(d => {
-    const pol = d.polar; // angle, r
-    const radiusBase = Math.min(W,H) * 0.42 * pol.r;
+  // draw each detection as bubble on top-down map
+  for (const d of detsTop) {
+    const pol = d.top; // { angle, r }
+    // convert polar to screen coordinates
+    const radiusBase = Math.min(W, H) * 0.44 * pol.r; // 0..some px
     const px = cx + radiusBase * Math.sin(pol.angle);
-    const py = cy-40 - radiusBase * Math.cos(pol.angle);
+    const py = cy - 40 - radiusBase * Math.cos(pol.angle);
 
-    let color;
-    if (d.class === 'person') color = 'rgba(255,190,60,0.95)';
-    else if (d.class === 'car') color = 'rgba(120,220,120,0.95)';
-    else color = 'rgba(255,130,100,0.95)';
+    // color per class
+    let color = 'rgba(255,195,70,0.94)'; // person-yellow
+    if (d.class === 'car') color = 'rgba(90,230,120,0.95)';
+    if (d.class === 'bus' || d.class === 'truck') color = 'rgba(255,110,110,0.95)';
+    if (d.class === 'bicycle') color = 'rgba(120,200,255,0.95)';
 
-    const rad = Math.min(W,H) * 0.18 * (1 - (pol.r-0.2)); // أقرب = أكبر
+    // radius depends on distance (closer -> bigger)
+    const rad = Math.max(18, (1 - pol.r) * Math.min(W,H) * 0.28);
 
-    // تدرج ناعم
-    const g = ctx.createRadialGradient(px, py, rad*0.1, px, py, rad);
-    g.addColorStop(0, color);
+    // radial gradient for soft bubble
+    const g = ctx.createRadialGradient(px, py, rad*0.08, px, py, rad);
+    g.addColorStop(0, color.replace(/[\d\.]+\)$/,'1)'));
     g.addColorStop(1, color.replace(/[\d\.]+\)$/,'0)'));
     ctx.fillStyle = g;
     ctx.beginPath();
-    ctx.ellipse(px, py, rad*0.7, rad, 0, 0, Math.PI*2);
+    ctx.arc(px, py, rad, 0, Math.PI*2);
     ctx.fill();
-  });
+
+    // outline
+    ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+    ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.arc(px, py, rad, 0, Math.PI*2); ctx.stroke();
+
+    // label bubble (rounded rectangle with arrow)
+    const label = (d.class === 'person') ? 'مشاة' : (d.class === 'car' ? 'سيارة جانبية' : d.class);
+    ctx.font = '14px sans-serif';
+    ctx.fillStyle = 'rgba(0,0,0,0.65)';
+    const tw = ctx.measureText(label).width;
+    const lx = px - tw/2 - 10;
+    const ly = py - rad - 28;
+    roundRect(ctx, lx, ly, tw + 20, 24, 8, true, false);
+    ctx.fillStyle = '#fff';
+    ctx.fillText(label, lx + 10, ly + 16);
+  }
 }
 
-// أداة لرسم مستطيل بحواف ناعمة
+// helper: rounded rectangle
 function roundRect(ctx, x, y, w, h, r, fill, stroke) {
-  if (r === undefined) r = 5;
+  if (r === undefined) r = 6;
   ctx.beginPath();
-  ctx.moveTo(x+r, y);
-  ctx.arcTo(x+w, y, x+w, y+h, r);
-  ctx.arcTo(x+w, y+h, x, y+h, r);
-  ctx.arcTo(x, y+h, x, y, r);
-  ctx.arcTo(x, y, x+w, y, r);
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y, x + w, y + h, r);
+  ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r);
+  ctx.arcTo(x, y, x + w, y, r);
   ctx.closePath();
   if (fill) ctx.fill();
   if (stroke) ctx.stroke();
 }
 
-// حلقة المعالجة
-async function loop(now) {
-  if (!running || !model || !video.videoWidth) {
-    requestAnimationFrame(loop);
-    return;
-  }
-  const dt = (now - lastTime)/1000;
-  lastTime = now;
+// main loop: detect & draw
+async function mainLoop() {
+  if (!running) return;
+  if (!model) { requestAnimationFrame(mainLoop); return; }
 
-  // رسم السرعة الوهمية (فقط شكل)
-  const fakeSpeed = Math.max(0, Math.round(40 + 5*Math.sin(now/1000)));
+  // source: either video (live) or ref image (in test mode)
+  const useTest = testModeCheckbox.checked;
+  let srcW, srcH;
+  const tmp = document.createElement('canvas');
+  if (useTest) {
+    tmp.width = refImage.naturalWidth || 640;
+    tmp.height = refImage.naturalHeight || 360;
+    tmp.getContext('2d').drawImage(refImage, 0, 0, tmp.width, tmp.height);
+    srcW = tmp.width; srcH = tmp.height;
+  } else {
+    if (!video.videoWidth) { requestAnimationFrame(mainLoop); return; }
+    const scale = Math.min(1, 640 / video.videoWidth);
+    tmp.width = Math.floor(video.videoWidth * scale);
+    tmp.height = Math.floor(video.videoHeight * scale);
+    tmp.getContext('2d').drawImage(video, 0, 0, tmp.width, tmp.height);
+    srcW = tmp.width; srcH = tmp.height;
+  }
+
+  const preds = await model.detect(tmp);
+
+  // filter relevant classes
+  const useful = preds.filter(p => ['person','car','bus','truck','bicycle','motorbike'].includes(p.class) && p.score > 0.35);
+
+  // map to top-down positions
+  const topList = useful.map(p => {
+    const topPos = mapDetToTop(p, srcW, srcH);
+    return { class: p.class, score: p.score, top: topPos };
+  });
+
+  drawTop(topList);
+
+  // simulate speed readout
+  const fakeSpeed = Math.round(20 + 10 * Math.abs(Math.sin(Date.now()/3000)));
   speedEl.textContent = fakeSpeed + ' km/h';
 
-  // تحضير إطار مصغّر للتحليل
-  const maxW = 640;
-  const scale = Math.min(1, maxW / video.videoWidth);
-  const sw = Math.floor(video.videoWidth * scale);
-  const sh = Math.floor(video.videoHeight * scale);
-  const tmp = document.createElement('canvas');
-  tmp.width = sw;
-  tmp.height = sh;
-  const tctx = tmp.getContext('2d');
-  tctx.drawImage(video, 0, 0, sw, sh);
-
-  const predictions = await model.detect(tmp);
-
-  // تحويل الـ detections إلى إحداثيات حول السيارة
-  const useful = predictions
-    .filter(p => ['person','car','bus','truck','bicycle','motorbike'].includes(p.class) && p.score > 0.4)
-    .map(p => {
-      const polar = mapDetectionToPolar(p, video.videoWidth, video.videoHeight);
-      return { class: p.class, score: p.score, polar };
-    });
-
-  drawScene(useful);
-
-  requestAnimationFrame(loop);
+  // next frame
+  requestAnimationFrame(mainLoop);
 }
 
-// أزرار التحكم
-startBtn.onclick = async () => {
+// start/stop
+btnStart.onclick = async () => {
   await startCamera();
   running = true;
-  statusEl.textContent = 'يعمل (تحليل مباشر)...';
+  if (!model) await loadModel();
+  requestAnimationFrame(mainLoop);
 };
-stopBtn.onclick = () => {
+btnStop.onclick = () => {
   running = false;
   stopCamera();
-  statusEl.textContent = 'متوقف';
 };
-
-requestAnimationFrame(loop);
