@@ -1,12 +1,13 @@
-*{box-sizing:border-box;margin:0;padding:0;font-family:system-ui,Segoe UI,Roboto,Arial,sans-serif}
-body{background:#070f15;color:#e6eef6;min-height:100vh;display:flex;flex-direction:column}
+*{box-sizing:border-box;font-family:system-ui,Segoe UI,Roboto,Arial;margin:0;padding:0}
+body{background:#07121a;color:#e9f3fa;min-height:100vh;display:flex;flex-direction:column}
 header{padding:12px;text-align:center;background:linear-gradient(90deg,#071428,#0b2a3a)}
-header h1{font-size:20px;margin-bottom:4px}
-header p{font-size:13px;opacity:0.8}
-.controls{display:flex;gap:10px;justify-content:center;padding:10px;background:#06121a}
-.controls button{border:none;border-radius:8px;padding:8px 14px;background:#0fa3ff;color:#011;font-weight:600;cursor:pointer}
-#viewport{position:relative;flex:1;display:flex;justify-content:center;align-items:center;padding:10px}
-#hud{width:100%;max-width:900px;max-height:70vh;border-radius:12px;background:linear-gradient(#eef2f7,#f7f8fb);}
-#topInfo{position:absolute;left:12px;top:12px;display:flex;gap:8px}
-#topInfo div{background:rgba(0,0,0,0.06);padding:6px 10px;border-radius:8px;font-size:13px;font-weight:600}
-footer{padding:8px;text-align:center;color:#9fb6c9;background:#031017;font-size:12px}
+header h1{font-size:18px;margin-bottom:6px}
+.controls{display:flex;gap:10px;padding:10px;justify-content:center;background:#06121a}
+.controls button{background:#0fa3ff;border:none;padding:8px 12px;border-radius:8px;color:#012;cursor:pointer;font-weight:700}
+.controls label{align-items:center;color:#cfe9ff;display:flex;gap:6px}
+#viewport{position:relative;flex:1;display:flex;align-items:center;justify-content:center;padding:12px}
+#refImage{position:absolute;left:50%;top:6%;transform:translateX(-50%);max-width:86%;opacity:0.06;border-radius:8px;pointer-events:none}
+canvas#hudCanvas{width:100%;max-width:920px;height:calc(70vh);border-radius:12px;background:linear-gradient(#eef2f7,#f7f8fb);display:block}
+#hudTop{position:absolute;left:12px;top:12px;display:flex;gap:10px;z-index:60}
+#hudTop div{background:rgba(0,0,0,0.05);padding:6px 10px;border-radius:8px;font-weight:700}
+footer{text-align:center;padding:10px;color:#9fb6c9;background:#031017}
