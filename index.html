@@ -1,43 +1,44 @@
 <!doctype html>
-<html lang="en">
+<html lang="ar">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
-<title>Tesla-like Mobile HUD — Realistic Demo</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Simulated Tesla-like HUD — No Camera</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div id="app">
     <header>
-      <h1>Mobile 360° HUD — Realistic</h1>
-      <p>Allow camera and orientation access, press <strong>Use Camera</strong>. This demo uses TFJS + THREE.js to render a 2.5D/3D HUD.</p>
+      <h1>HUD محاكاة 360° — بدون كاميرا</h1>
+      <p>الهاتف يمثل السيارة. سترى شارعًا أمامك وأجسامًا جانبية مع تسميات وتحذيرات—لا حاجة لكاميرا.</p>
     </header>
 
     <div class="controls">
-      <button id="useCamera">Use Camera</button>
-      <button id="useReference">Use Reference Image</button>
-      <label class="switch"><input id="flip" type="checkbox"><span>Flip</span></label>
+      <button id="startSim">ابدأ المحاكاة</button>
+      <button id="pauseSim">إيقاف مؤقت</button>
+      <label>سرعة المحاكاة:
+        <input id="speedRange" type="range" min="0.2" max="3" step="0.1" value="1">
+      </label>
     </div>
 
-    <div id="viewport">
-      <video id="video" autoplay playsinline muted></video>
-      <canvas id="overlay2d"></canvas>
-      <div id="threeContainer"></div>
-      <div id="hudInfo">
-        <div id="battery">⚡ 72%</div>
-        <div id="speed">0 km/h</div>
+    <main id="viewport">
+      <!-- optional background reference image (your uploaded picture) -->
+      <img id="bgRef" src="/mnt/data/2C334301-B728-42DE-9B51-7E159317FF1E.jpeg" alt="background reference" />
+      <canvas id="hudCanvas"></canvas>
+      <div id="uiOverlay">
+        <div id="carIcon">🚗</div>
+        <div id="topInfo">
+          <div id="battery">⚡ 72%</div>
+          <div id="speed">0 km/h</div>
+        </div>
       </div>
-    </div>
+    </main>
 
     <footer>
-      <small>Demo: TFJS coco-ssd + three.js. Works on modern mobile browsers (Safari/Chrome).</small>
+      <small>نسخة محاكاة - واجهة 2.5D تشبه Tesla (بدون استخدام كاميرا)</small>
     </footer>
   </div>
 
-  <!-- libraries from CDN -->
-  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.12.0/dist/tf.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd@2.2.2/dist/coco-ssd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r152/three.min.js"></script>
-  <script src="script_realistic.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
