@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+<title>Tesla-like Mobile HUD — Realistic Demo</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="app">
+    <header>
+      <h1>Mobile 360° HUD — Realistic</h1>
+      <p>Allow camera and orientation access, press <strong>Use Camera</strong>. This demo uses TFJS + THREE.js to render a 2.5D/3D HUD.</p>
+    </header>
+
+    <div class="controls">
+      <button id="useCamera">Use Camera</button>
+      <button id="useReference">Use Reference Image</button>
+      <label class="switch"><input id="flip" type="checkbox"><span>Flip</span></label>
+    </div>
+
+    <div id="viewport">
+      <video id="video" autoplay playsinline muted></video>
+      <canvas id="overlay2d"></canvas>
+      <div id="threeContainer"></div>
+      <div id="hudInfo">
+        <div id="battery">⚡ 72%</div>
+        <div id="speed">0 km/h</div>
+      </div>
+    </div>
+
+    <footer>
+      <small>Demo: TFJS coco-ssd + three.js. Works on modern mobile browsers (Safari/Chrome).</small>
+    </footer>
+  </div>
+
+  <!-- libraries from CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.12.0/dist/tf.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd@2.2.2/dist/coco-ssd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r152/three.min.js"></script>
+  <script src="script_realistic.js"></script>
+</body>
+</html>
