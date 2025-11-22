@@ -2,43 +2,36 @@
 <html lang="en">
 <head>
   <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
-  <title>Top-Down HUD — Side Object Detector (English)</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Static HUD Demo (Test Only)</title>
   <link rel="stylesheet" href="style.css"/>
 </head>
 <body>
   <div class="app">
     <header>
-      <h1>Top-Down HUD — Side Object Detector</h1>
-      <p>The phone represents the car. Camera runs hidden for detection or use Test Mode to simulate with a reference image.</p>
+      <h1>Static Top-Down HUD — Test Demo</h1>
+      <p>This demo does NOT use the camera or TFJS. It uses a reference image and draws side bubbles so you can verify the UI.</p>
     </header>
 
     <div class="controls">
-      <button id="btnStart">Start</button>
-      <button id="btnStop">Stop</button>
-      <label><input id="testMode" type="checkbox" /> Test mode (use reference image)</label>
+      <button id="showLeft">Show Left Object</button>
+      <button id="showRight">Show Right Object</button>
+      <button id="showBoth">Show Both</button>
+      <button id="clear">Clear</button>
     </div>
 
     <main id="viewport">
-      <!-- hidden camera (used only for detection) -->
-      <video id="video" autoplay playsinline muted style="display:none"></video>
+      <!-- reference image from session (you can leave this path as-is) -->
+      <img id="refImage" src="/mnt/data/C11C7C56-B110-433A-ACEC-8C2DDC0B4561.jpeg" alt="reference" />
 
-      <!-- reference image used only in Test Mode (provided from session) -->
-      <img id="refImage" src="/mnt/data/C11C7C56-B110-433A-ACEC-8C2DDC0B4561.jpeg" alt="reference" style="display:none"/>
-
-      <!-- drawing canvas -->
       <canvas id="hudCanvas"></canvas>
 
-      <!-- small status box -->
-      <div id="statusBox">Status: stopped</div>
+      <div id="status">Status: ready (static demo)</div>
     </main>
 
-    <footer>All detection runs locally on your device (TensorFlow.js). No video leaves your phone.</footer>
+    <footer>Static demo — use this to check the HUD rendering before enabling detection.</footer>
   </div>
 
-  <!-- TensorFlow.js + COCO-SSD -->
-  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.12.0/dist/tf.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd@2.2.2/dist/coco-ssd.min.js"></script>
-  <script src="script.js"></script>
+  <script src="script_static.js"></script>
 </body>
 </html>
