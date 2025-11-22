@@ -1,42 +1,45 @@
 <!doctype html>
 <html lang="ar">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
-  <title>Tesla-like HUD — Live</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
+<title>HUD — Tesla-like Top-Down</title>
+<link rel="stylesheet" href="style.css"/>
 </head>
 <body>
-  <div id="app">
+  <div class="app">
     <header>
-      <h1>عرض محاكاة مثل Tesla</h1>
-      <p>الهاتف = السيارة. سيتم استخدام الكاميرا في الخلفية لتحليل ما حولك، لكن لن يتم عرض الفيديو، فقط الرسم مثل تسلا.</p>
+      <h1>HUD محاكاة شبيهة بتسلا (Top-Down)</h1>
+      <p>الهاتف = السيارة. الكاميرا تعمل بالخلفية فقط لتحليل الأجسام.</p>
     </header>
 
     <div class="controls">
-      <button id="startBtn">ابدأ</button>
-      <button id="stopBtn">إيقاف</button>
+      <button id="btnStart">ابدأ</button>
+      <button id="btnStop">إيقاف</button>
+      <label><input id="testMode" type="checkbox"/> وضع اختبار (صورة ثابتة)</label>
     </div>
 
     <main id="viewport">
-      <!-- الكاميرا مخفية، لا تظهر للمستخدم -->
+      <!-- كاميرا مخفية للاستنتاج -->
       <video id="video" autoplay playsinline muted style="display:none"></video>
 
-      <!-- اللوحة التي سترسم فيها السيارة والسحب -->
-      <canvas id="hud"></canvas>
+      <!-- الخلفية المرجعية (صورة من جلسة الشات) -->
+      <img id="refImage" src="/mnt/data/B3C0947E-8CE5-4391-B183-DE0B623D1584.jpeg" alt="ref" style="display:none"/>
 
-      <div id="topInfo">
+      <!-- لوح الرسم -->
+      <canvas id="hudCanvas"></canvas>
+
+      <!-- معلومات صغيرة -->
+      <div id="hudTop">
+        <div id="battery">⚡72%</div>
         <div id="speed">0 km/h</div>
-        <div id="status">جاهز</div>
       </div>
     </main>
 
-    <footer>
-      <small>يتم التحليل بالكامل على جهازك باستخدام TensorFlow.js (لا يتم إرسال الفيديو إلى أي خادم).</small>
-    </footer>
+    <footer>تحليل محلي على جهازك — لا يُرسل الفيديو لأي خادم.</footer>
   </div>
 
-  <!-- مكتبات الذكاء الاصطناعي -->
+  <!-- TFJS + COCO-SSD من CDN -->
   <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.12.0/dist/tf.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd@2.2.2/dist/coco-ssd.min.js"></script>
   <script src="script.js"></script>
